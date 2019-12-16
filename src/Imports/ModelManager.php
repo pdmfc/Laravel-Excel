@@ -7,6 +7,7 @@ use Illuminate\Support\Collection;
 use Maatwebsite\Excel\Concerns\SkipsOnError;
 use Maatwebsite\Excel\Concerns\ToModel;
 use Maatwebsite\Excel\Concerns\WithValidation;
+use Maatwebsite\Excel\Concerns\WithValidationRows;
 use Maatwebsite\Excel\Exceptions\RowSkippedException;
 use Maatwebsite\Excel\Validators\RowValidator;
 use Maatwebsite\Excel\Validators\ValidationException;
@@ -49,7 +50,7 @@ class ModelManager
      */
     public function flush(ToModel $import, bool $massInsert = false)
     {
-        if ($import instanceof WithValidation) {
+        if ($import instanceof WithValidation || $import instanceof WithValidationRows) {
             $this->validateRows($import);
         }
 
@@ -156,11 +157,11 @@ class ModelManager
     }
 
     /**
-     * @param WithValidation $import
+     * @param WithValidation|WithValidationRows $import
      *
      * @throws ValidationException
      */
-    private function validateRows(WithValidation $import)
+    private function validateRows($import)
     {
         try {
             $this->validator->validate($this->rows, $import);
