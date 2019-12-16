@@ -7,6 +7,7 @@ use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException as IlluminateValidationException;
 use Maatwebsite\Excel\Concerns\SkipsOnFailure;
 use Maatwebsite\Excel\Concerns\WithValidation;
+use Maatwebsite\Excel\Concerns\WithValidationRows;
 use Maatwebsite\Excel\Exceptions\RowSkippedException;
 
 class RowValidator
@@ -26,14 +27,14 @@ class RowValidator
 
     /**
      * @param array          $rows
-     * @param WithValidation $import
+     * @param WithValidation|WithValidationRows $import
      *
      * @throws ValidationException
      * @throws RowSkippedException
      */
-    public function validate(array $rows, WithValidation $import)
+    public function validate(array $rows, $import)
     {
-        $rules      = $this->rules($import, $rows);
+        $rules = $this->rules($import, $rows);
         $messages   = $this->messages($import);
         $attributes = $this->attributes($import);
 
@@ -67,11 +68,11 @@ class RowValidator
     }
 
     /**
-     * @param WithValidation $import
+     * @param WithValidation|WithValidationRows $import
      *
      * @return array
      */
-    private function messages(WithValidation $import): array
+    private function messages($import): array
     {
         return method_exists($import, 'customValidationMessages')
             ? $this->formatKey($import->customValidationMessages())
@@ -79,11 +80,11 @@ class RowValidator
     }
 
     /**
-     * @param WithValidation $import
+     * @param WithValidation|WithValidationRows $import
      *
      * @return array
      */
-    private function attributes(WithValidation $import): array
+    private function attributes($import): array
     {
         return method_exists($import, 'customValidationAttributes')
             ? $this->formatKey($import->customValidationAttributes())
@@ -91,13 +92,16 @@ class RowValidator
     }
 
     /**
-     * @param WithValidation $import
-     *
+     * @param WithValidation|WithValidationRows $import
      * @param array $rows
+     *
      * @return array
      */
-    private function rules(WithValidation $import, array $rows = []): array
+    private function rules($import, array $rows): array
     {
+        if ($import instanceof WithValidation) {
+            return $this->formatKey($import->rules());
+        }
         return $this->formatKey($import->rules($rows));
     }
 
