@@ -28,6 +28,16 @@ class QueueExport implements ShouldQueue
     private $temporaryFile;
 
     /**
+     * @var int
+     */
+    public $tries;
+
+    /**
+     * @var int
+     */
+    public $timeout;
+
+    /**
      * @param object        $export
      * @param TemporaryFile $temporaryFile
      * @param string        $writerType
@@ -37,6 +47,8 @@ class QueueExport implements ShouldQueue
         $this->export        = $export;
         $this->writerType    = $writerType;
         $this->temporaryFile = $temporaryFile;
+        $this->timeout       = $export->timeout ?? null;
+        $this->tries         = $export->tries ?? null;
     }
 
     /**
